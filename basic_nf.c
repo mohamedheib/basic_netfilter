@@ -8,7 +8,6 @@
 #include <linux/tcp.h>
 #define DRIVER_AUTHOR "Mohammad Heib <goody698@gmail.com>"
 #define DRIVER_DESC   "incoming traffic sniffing - basic implementation"
-#define hdr_print(hdr_name, hdr_filed, filed_vlaue) pr_info("HDR_NAME[%s]: %s = %d\n", hdr_name, hdr_filed, filed_vlaue) 
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR(DRIVER_AUTHOR);
@@ -29,7 +28,7 @@ static unsigned int my_nf_hookfn(void *priv,
 		snprintf(saddr, 16, "%pI4", &ip4h->saddr);
 		snprintf(daddr, 16, "%pI4", &ip4h->daddr);
 
-		hdr_print("ipv4", "TTL", ip4h->ttl);
+		pr_info("HDR_NAME[ipv4]: TTL = %d\n", ip4h->ttl);
 		pr_info("HDR_NAME[ipv4]: saddr = %s\n", saddr);
 		pr_info("HDR_NAME[ipv4]: daddr = %s\n", daddr);
 		pr_info("HDR_NAME[ipv4]: checksum = 0x%X", ip4h->check);
@@ -43,6 +42,18 @@ static unsigned int my_nf_hookfn(void *priv,
 
 	} else if(skb->protocol == htons(ETH_P_IPV6)){/* IPv6 */
 		ip6h = ipv6_hdr(skb);
+		snprintf(saddr, 16, "%pI4", &ip6h->saddr);
+		snprintf(daddr, 16, "%pI4", &ip6h->daddr);
+
+		pr_info("HDR_NAME[ipv4]: HOPLIMIT = %d\n", ip6h->hop_limit);
+		pr_info("HDR_NAME[ipv4]: saddr = %s\n", saddr);
+		pr_info("HDR_NAME[ipv4]: daddr = %s\n", daddr);
+		if (ip6h->nexthdr == IPPROTO_TCP){
+			tcp = tcp_hdr(skb);
+		}else if (ip6h->nexthdr == IPPROTO_UDP){
+
+			udp = udp_hdr(skb);
+		}
 	}	
 
 
